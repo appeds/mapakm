@@ -579,6 +579,7 @@
     </div>
   </div>
 
+  <!-- LOGIN SCREEN -->
   <div id="login-screen" style="display:none;position:fixed;inset:0;z-index:500;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px">
     <div style="background:var(--surface);border-radius:var(--radius-lg);padding:32px 28px;width:100%;max-width:400px;box-shadow:0 8px 32px rgba(0,0,0,.10)">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
@@ -589,20 +590,18 @@
         </div>
       </div>
       <div style="height:1px;background:var(--border);margin:18px 0"></div>
-
       <!-- Tabs -->
       <div style="display:flex;gap:0;margin-bottom:20px;border-bottom:1px solid var(--border)">
         <button id="login-tab-in" onclick="loginTab('in')" style="flex:1;padding:8px;font-size:13px;font-weight:500;background:none;border:none;border-bottom:2px solid var(--blue);color:var(--blue);cursor:pointer">Entrar</button>
         <button id="login-tab-up" onclick="loginTab('up')" style="flex:1;padding:8px;font-size:13px;font-weight:500;background:none;border:none;border-bottom:2px solid transparent;color:var(--text3);cursor:pointer">Criar conta</button>
       </div>
-
       <div id="login-error" style="display:none;font-size:12px;color:var(--red);background:var(--red-bg);padding:8px 12px;border-radius:var(--radius);margin-bottom:12px"></div>
-
-      <div style="display:flex;flex-direction:column;gap:10px">
-        <div id="login-nif-wrap" style="display:none">
-          <label style="font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:5px">NIF</label>
-          <input type="text" id="login-nif" placeholder="123456789" maxlength="9" style="width:100%;font-family:'DM Mono',monospace;letter-spacing:.08em">
-          <div style="font-size:11px;color:var(--text3);margin-top:4px">O NIF identifica a tua conta e não pode ser alterado depois.</div>
+      <!-- Formulário principal -->
+      <div id="login-form-main" style="display:flex;flex-direction:column;gap:10px">
+        <div>
+          <label style="font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:5px">NIF <span style="color:var(--red)">*</span></label>
+          <input type="text" id="login-nif" placeholder="123456789" maxlength="9" style="width:100%;font-family:'DM Mono',monospace;letter-spacing:.1em">
+          <div id="login-nif-note" style="font-size:11px;color:var(--text3);margin-top:3px;display:none">O NIF identifica a tua conta e não pode ser alterado.</div>
         </div>
         <div>
           <label style="font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:5px">Email</label>
@@ -616,18 +615,22 @@
           <i class="ti ti-login"></i> <span id="login-submit-label">Entrar</span>
         </button>
       </div>
-
       <div style="display:flex;align-items:center;gap:10px;margin:16px 0">
         <div style="flex:1;height:1px;background:var(--border)"></div>
         <span style="font-size:11px;color:var(--text3)">ou</span>
         <div style="flex:1;height:1px;background:var(--border)"></div>
       </div>
-
       <button class="btn" onclick="loginGoogle()" style="width:100%;justify-content:center;gap:8px">
         <svg width="16" height="16" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.35-8.16 2.35-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
         Entrar com Google
       </button>
-
+      <!-- Ecrã intermédio Google: pedir NIF -->
+      <div id="login-google-nif" style="display:none;margin-top:16px;padding:14px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border)">
+        <div style="font-size:13px;font-weight:500;margin-bottom:8px">Falta apenas o NIF</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:10px">Para completar o registo com Google introduz o teu NIF. Não pode ser alterado depois.</div>
+        <input type="text" id="login-google-nif-input" placeholder="123456789" maxlength="9" style="width:100%;font-family:'DM Mono',monospace;letter-spacing:.1em;margin-bottom:8px">
+        <button class="btn primary" onclick="loginGoogleSaveNif()" style="width:100%;justify-content:center"><i class="ti ti-check"></i> Confirmar e entrar</button>
+      </div>
       <p style="font-size:11px;color:var(--text3);text-align:center;margin-top:16px;line-height:1.6">Os teus dados ficam associados à tua conta e acessíveis em qualquer dispositivo.</p>
     </div>
   </div>
@@ -3035,6 +3038,8 @@ function fbInitUI(){
 }
 
 window.onFirebaseLogin = async function(user){
+  // If pending Google user waiting for NIF, don't enter app yet
+  if(window._pendingGoogleUser && window._pendingGoogleUser.uid === user.uid) return;
   hideLoginScreen();
   document.getElementById('sidebar-user').style.display='block';
   document.getElementById('sidebar-user-email').textContent = user.email||user.displayName||'';
@@ -3064,37 +3069,37 @@ function loginTab(mode){
   document.getElementById('login-tab-up').style.borderBottomColor = mode==='up'?'var(--blue)':'transparent';
   document.getElementById('login-tab-up').style.color = mode==='up'?'var(--blue)':'var(--text3)';
   document.getElementById('login-submit-label').textContent = mode==='in'?'Entrar':'Criar conta';
-  document.getElementById('login-nif-wrap').style.display = mode==='up'?'block':'none';
+  // NIF note only shown on register
+  const nifNote = document.getElementById('login-nif-note');
+  if(nifNote) nifNote.style.display = mode==='up'?'block':'none';
   document.getElementById('login-error').style.display='none';
+  document.getElementById('login-google-nif').style.display='none';
 }
 
 async function loginSubmit(){
+  const nif = document.getElementById('login-nif').value.trim();
   const email = document.getElementById('login-email').value.trim();
   const pass = document.getElementById('login-password').value;
+  if(!nif||nif.length!==9||isNaN(nif)){ loginError('Introduz um NIF válido (9 dígitos).'); return; }
   if(!email||!pass){ loginError('Preenche email e password.'); return; }
-  if(_loginMode==='up'){
-    const nif = document.getElementById('login-nif').value.trim();
-    if(!nif||nif.length<9||!/^\d+$/.test(nif)){ loginError('Introduz um NIF válido (9 dígitos).'); return; }
-    // Check NIF uniqueness
-    try{
-      const nifRef = window._fbDoc(window._fbDb, 'nifs', nif);
-      const snap = await window._fbGetDoc(nifRef);
-      if(snap.exists()){ loginError('Já existe uma conta com este NIF.'); return; }
-    } catch(e){ /* proceed if offline */ }
-  }
   const btn = document.getElementById('login-submit-btn');
   btn.disabled=true;
   btn.innerHTML='<i class="ti ti-loader" style="animation:spin .8s linear infinite"></i> A aguardar...';
   try{
     if(_loginMode==='in'){
+      // Verify NIF matches account
+      const nifRef = window._fbDoc(window._fbDb,'nifs',nif);
+      const nifSnap = await window._fbGetDoc(nifRef);
+      if(!nifSnap.exists()){ loginError('NIF não encontrado. Verifica os dados ou cria uma conta.'); btn.disabled=false; btn.innerHTML='<i class="ti ti-login"></i> <span id="login-submit-label">Entrar</span>'; return; }
       await window._fbSignIn(window._fbAuth, email, pass);
     } else {
+      // Register: check NIF uniqueness
+      const nifRef = window._fbDoc(window._fbDb,'nifs',nif);
+      const nifSnap = await window._fbGetDoc(nifRef);
+      if(nifSnap.exists()){ loginError('Já existe uma conta com este NIF.'); btn.disabled=false; btn.innerHTML='<i class="ti ti-login"></i> <span id="login-submit-label">Criar conta</span>'; return; }
       const cred = await window._fbCreateUser(window._fbAuth, email, pass);
-      // Save NIF to nifs collection (uniqueness index)
-      const nif = document.getElementById('login-nif').value.trim();
-      await window._fbSetDoc(window._fbDoc(window._fbDb,'nifs',nif), {uid: cred.user.uid, createdAt: Date.now()});
-      // Save NIF to user profile
-      await window._fbSetDoc(window._fbDoc(window._fbDb,'users',cred.user.uid), {nif, createdAt: Date.now()}, {merge:true});
+      await window._fbSetDoc(window._fbDoc(window._fbDb,'nifs',nif),{uid:cred.user.uid,createdAt:Date.now()});
+      await window._fbSetDoc(window._fbDoc(window._fbDb,'users',cred.user.uid),{nif,createdAt:Date.now()},{merge:true});
     }
     document.getElementById('login-error').style.display='none';
   } catch(e){
@@ -3106,10 +3111,39 @@ async function loginSubmit(){
 
 async function loginGoogle(){
   try{
-    await window._fbSignInPopup(window._fbAuth, window._fbGoogleProvider);
+    const cred = await window._fbSignInPopup(window._fbAuth, window._fbGoogleProvider);
+    // Check if NIF exists for this user
+    const userRef = window._fbDoc(window._fbDb,'users',cred.user.uid);
+    const snap = await window._fbGetDoc(userRef);
+    if(!snap.exists()||!snap.data().nif){
+      // New Google user — need NIF before entering app
+      // onFirebaseLogin will fire but we intercept with _pendingGoogleUser
+      window._pendingGoogleUser = cred.user;
+      document.getElementById('login-google-nif').style.display='block';
+      document.getElementById('login-form-main').style.display='none';
+    }
+    // If they have NIF, onFirebaseLogin handles entry normally
   } catch(e){
-    loginError(fbErrorMsg(e.code));
+    if(e.code!=='auth/popup-closed-by-user') loginError(fbErrorMsg(e.code));
   }
+}
+
+async function loginGoogleSaveNif(){
+  const nif = document.getElementById('login-google-nif-input').value.trim();
+  if(!nif||nif.length!==9||isNaN(nif)){ loginError('Introduz um NIF válido (9 dígitos).'); return; }
+  const user = window._pendingGoogleUser || window._fbUser;
+  if(!user){ loginError('Sessão não encontrada. Tenta de novo.'); return; }
+  try{
+    const nifRef = window._fbDoc(window._fbDb,'nifs',nif);
+    const snap = await window._fbGetDoc(nifRef);
+    if(snap.exists()&&snap.data().uid!==user.uid){ loginError('Já existe uma conta com este NIF.'); return; }
+    await window._fbSetDoc(nifRef,{uid:user.uid,createdAt:Date.now()});
+    await window._fbSetDoc(window._fbDoc(window._fbDb,'users',user.uid),{nif,createdAt:Date.now()},{merge:true});
+    _userNif = nif;
+    window._pendingGoogleUser = null;
+    // Now proceed to app
+    await fbLoad(user);
+  } catch(e){ loginError('Erro ao guardar NIF: '+e.message); }
 }
 
 function loginError(msg){
@@ -3195,7 +3229,6 @@ async function fbLoad(user){
     renderMonthTabs(); renderMonth(); renderSummary();
     updSidebarYear(); renderYearsList(); applyPrefs();
     renderPremiumStatus();
-    checkNifMissing();
     if(!localStorage.getItem('mapaKm_onboarded')&&!Object.keys(state.anos||{}).length){
       setTimeout(()=>obShow(),400);
     }
