@@ -2281,45 +2281,47 @@ function buildMonthPdf(doc,month,cfg,yr,startY){
   y=pdfHeader(doc,`Mapa de Abono — Km`,`${MONTHS[month]} ${yr}`,y);
   y+=2;
 
-  // Meta header — 3 linhas com espaço adequado para nomes longos
+  // Meta header — layout definido
+  // Linha 1: Empresa(14mm) | NIF(105mm)
+  // Linha 2: Prop.Viatura(14mm) | Condutor(105mm)
+  // Linha 3: Viatura(14mm) | Matricula(59.5mm) | Valor/km(105mm)
   doc.setFontSize(8);
   const mLblColor=[80,80,80];
   const mRowH=6.5;
+  const mC1=ML, mC2=ML+91, mC3=ML+45.5; // 14mm, 105mm, 59.5mm
 
-  // Linha 1: Empresa (espaço generoso) | NIF alinhado à direita
-  doc.setFont('helvetica','bold'); doc.setTextColor(...mLblColor); doc.text('Empresa:',ML,y);
+  // Linha 1
+  doc.setFont('helvetica','bold'); doc.setTextColor(...mLblColor); doc.text('Empresa:',mC1,y);
   doc.setFont('helvetica','normal'); doc.setTextColor(0);
-  const mEmpX=ML+doc.getTextWidth('Empresa:')+2;
-  const mNifLbl='NIF:'; const mNifW=32;
-  doc.text(gc.empresa||'—',mEmpX,y,{maxWidth:CW-mNifW-(mEmpX-ML)-4});
-  doc.setFont('helvetica','bold'); doc.setTextColor(...mLblColor); doc.text(mNifLbl,PW-MR-mNifW,y);
+  doc.text(gc.empresa||'—', mC1+doc.getTextWidth('Empresa:')+2, y, {maxWidth: mC2-mC1-doc.getTextWidth('Empresa:')-4});
+  doc.setFont('helvetica','bold'); doc.setTextColor(...mLblColor); doc.text('NIF:', mC2, y);
   doc.setFont('helvetica','normal'); doc.setTextColor(0);
-  doc.text(gc.cod||'—',PW-MR-mNifW+doc.getTextWidth(mNifLbl)+2,y);
+  doc.text(gc.cod||'—', mC2+doc.getTextWidth('NIF:')+2, y, {maxWidth: PW-MR-mC2-doc.getTextWidth('NIF:')-2});
   y+=mRowH;
 
-  // Linha 2: Prop. Viatura | Condutor (metade cada)
-  const mHalf=CW/2;
-  doc.setFont('helvetica','bold'); doc.setTextColor(...mLblColor); doc.text('Prop. Viatura:',ML,y);
+  // Linha 2
+  doc.setFont('helvetica','bold'); doc.setTextColor(...mLblColor); doc.text('Prop. Viatura:',mC1,y);
   doc.setFont('helvetica','normal'); doc.setTextColor(0);
-  doc.text(cfg.prop||'—',ML+doc.getTextWidth('Prop. Viatura:')+2,y,{maxWidth:mHalf-doc.getTextWidth('Prop. Viatura:')-4});
-  const mCondLbl='Condutor:';
-  doc.setFont('helvetica','bold'); doc.setTextColor(...mLblColor); doc.text(mCondLbl,ML+mHalf,y);
+  doc.text(cfg.prop||'—', mC1+doc.getTextWidth('Prop. Viatura:')+2, y, {maxWidth: mC2-mC1-doc.getTextWidth('Prop. Viatura:')-4});
+  doc.setFont('helvetica','bold'); doc.setTextColor(...mLblColor); doc.text('Condutor:', mC2, y);
   doc.setFont('helvetica','normal'); doc.setTextColor(0);
-  doc.text(cfg.condutor||'—',ML+mHalf+doc.getTextWidth(mCondLbl)+2,y,{maxWidth:mHalf-doc.getTextWidth(mCondLbl)-2});
+  doc.text(cfg.condutor||'—', mC2+doc.getTextWidth('Condutor:')+2, y, {maxWidth: PW-MR-mC2-doc.getTextWidth('Condutor:')-2});
   y+=mRowH;
 
-  // Linha 3: Viatura | Matrícula | Valor/km (terços iguais)
-  const mThird=CW/3;
-  [['Viatura:',cfg.viatura||'—'],['Matrícula:',cfg.matricula||'—'],['Valor/km:',vkm.toFixed(2)+' €']].forEach((cell,i)=>{
-    const cx=ML+i*mThird;
-    doc.setFont('helvetica','bold'); doc.setTextColor(...mLblColor); doc.text(cell[0],cx,y);
-    doc.setFont('helvetica','normal'); doc.setTextColor(0);
-    doc.text(cell[1],cx+doc.getTextWidth(cell[0])+2,y,{maxWidth:mThird-doc.getTextWidth(cell[0])-4});
-  });
+  // Linha 3
+  doc.setFont('helvetica','bold'); doc.setTextColor(...mLblColor); doc.text('Viatura:',mC1,y);
+  doc.setFont('helvetica','normal'); doc.setTextColor(0);
+  doc.text(cfg.viatura||'—', mC1+doc.getTextWidth('Viatura:')+2, y, {maxWidth: mC3-mC1-doc.getTextWidth('Viatura:')-4});
+  doc.setFont('helvetica','bold'); doc.setTextColor(...mLblColor); doc.text('Matrícula:',mC3,y);
+  doc.setFont('helvetica','normal'); doc.setTextColor(0);
+  doc.text(cfg.matricula||'—', mC3+doc.getTextWidth('Matrícula:')+2, y, {maxWidth: mC2-mC3-doc.getTextWidth('Matrícula:')-4});
+  doc.setFont('helvetica','bold'); doc.setTextColor(...mLblColor); doc.text('Valor/km:',mC2,y);
+  doc.setFont('helvetica','normal'); doc.setTextColor(0);
+  doc.text(vkm.toFixed(2)+' €', mC2+doc.getTextWidth('Valor/km:')+2, y, {maxWidth: PW-MR-mC2-doc.getTextWidth('Valor/km:')-2});
   doc.setTextColor(0);
   y+=mRowH+2;
 
-  // Table columns
+    // Table columns
   const cols=[
     {label:'Dia',    x:ML,       w:10, align:'center'},
     {label:'Itinerário', x:ML+10, w:72, align:'left'},
@@ -2416,51 +2418,45 @@ function buildSummaryPdf(doc,cfg,yr){
   y=pdfHeader(doc,'Subsídio de Transporte — Automóvel Próprio',`Ano ${yr}`,y);
   y+=2;
 
-  // Meta — 3 linhas, layout com espaço adequado para nomes longos
+  // Meta — layout com colunas definidas
+  // Linha 1: Empresa(14mm) | NIF(105mm)
+  // Linha 2: Prop.Viatura(14mm) | Condutor(105mm)
+  // Linha 3: Viatura(14mm) | Matricula(59.5mm) | Valor/km(105mm)
   doc.setFontSize(8);
-  const lblColor = [80,80,80];
-  const rowH2 = 6.5;
+  const sLblColor=[80,80,80];
+  const sRowH=6.5;
+  const sC1=ML, sC2=ML+91, sC3=ML+45.5;
 
-  // Linha 1: Empresa (full width) | NIF
-  doc.setFont('helvetica','bold'); doc.setTextColor(...lblColor); doc.text('Empresa:',ML,y);
+  // Linha 1
+  doc.setFont('helvetica','bold'); doc.setTextColor(...sLblColor); doc.text('Empresa:',sC1,y);
   doc.setFont('helvetica','normal'); doc.setTextColor(0);
-  const empX = ML + doc.getTextWidth('Empresa:') + 2;
-  const nifLbl = 'NIF:';
-  const nifW = 28;
-  const nifLblW = doc.getTextWidth(nifLbl) + 2;
-  doc.text(gc.empresa||'—', empX, y, {maxWidth: CW - nifW - (empX - ML) - 4});
-  doc.setFont('helvetica','bold'); doc.setTextColor(...lblColor);
-  doc.text(nifLbl, PW-MR-nifW, y);
+  doc.text(gc.empresa||'—', sC1+doc.getTextWidth('Empresa:')+2, y, {maxWidth: sC2-sC1-doc.getTextWidth('Empresa:')-4});
+  doc.setFont('helvetica','bold'); doc.setTextColor(...sLblColor); doc.text('NIF:', sC2, y);
   doc.setFont('helvetica','normal'); doc.setTextColor(0);
-  doc.text(gc.cod||'—', PW-MR-nifW+nifLblW, y, {maxWidth: nifW-nifLblW});
-  y += rowH2;
+  doc.text(gc.cod||'—', sC2+doc.getTextWidth('NIF:')+2, y, {maxWidth: PW-MR-sC2-doc.getTextWidth('NIF:')-2});
+  y+=sRowH;
 
-  // Linha 2: Prop. Viatura | Condutor
-  const halfW = CW/2;
-  doc.setFont('helvetica','bold'); doc.setTextColor(...lblColor); doc.text('Prop. Viatura:',ML,y);
+  // Linha 2
+  doc.setFont('helvetica','bold'); doc.setTextColor(...sLblColor); doc.text('Prop. Viatura:',sC1,y);
   doc.setFont('helvetica','normal'); doc.setTextColor(0);
-  doc.text(cfg.prop||'—', ML+doc.getTextWidth('Prop. Viatura:')+2, y, {maxWidth: halfW-doc.getTextWidth('Prop. Viatura:')-4});
-  const condLbl = 'Condutor:';
-  doc.setFont('helvetica','bold'); doc.setTextColor(...lblColor); doc.text(condLbl, ML+halfW, y);
+  doc.text(cfg.prop||'—', sC1+doc.getTextWidth('Prop. Viatura:')+2, y, {maxWidth: sC2-sC1-doc.getTextWidth('Prop. Viatura:')-4});
+  doc.setFont('helvetica','bold'); doc.setTextColor(...sLblColor); doc.text('Condutor:', sC2, y);
   doc.setFont('helvetica','normal'); doc.setTextColor(0);
-  doc.text(cfg.condutor||'—', ML+halfW+doc.getTextWidth(condLbl)+2, y, {maxWidth: halfW-doc.getTextWidth(condLbl)-2});
-  y += rowH2;
+  doc.text(cfg.condutor||'—', sC2+doc.getTextWidth('Condutor:')+2, y, {maxWidth: PW-MR-sC2-doc.getTextWidth('Condutor:')-2});
+  y+=sRowH;
 
-  // Linha 3: Viatura | Matrícula | Valor/km
-  const thirdW = CW/3;
-  const row3=[
-    ['Viatura:', cfg.viatura||'—'],
-    ['Matrícula:', cfg.matricula||'—'],
-    ['Valor/km:', vkm.toFixed(2)+' €'],
-  ];
-  row3.forEach((cell,i)=>{
-    const cx = ML + i*thirdW;
-    doc.setFont('helvetica','bold'); doc.setTextColor(...lblColor); doc.text(cell[0],cx,y);
-    doc.setFont('helvetica','normal'); doc.setTextColor(0);
-    doc.text(cell[1], cx+doc.getTextWidth(cell[0])+2, y, {maxWidth: thirdW-doc.getTextWidth(cell[0])-4});
-  });
+  // Linha 3
+  doc.setFont('helvetica','bold'); doc.setTextColor(...sLblColor); doc.text('Viatura:',sC1,y);
+  doc.setFont('helvetica','normal'); doc.setTextColor(0);
+  doc.text(cfg.viatura||'—', sC1+doc.getTextWidth('Viatura:')+2, y, {maxWidth: sC3-sC1-doc.getTextWidth('Viatura:')-4});
+  doc.setFont('helvetica','bold'); doc.setTextColor(...sLblColor); doc.text('Matrícula:',sC3,y);
+  doc.setFont('helvetica','normal'); doc.setTextColor(0);
+  doc.text(cfg.matricula||'—', sC3+doc.getTextWidth('Matrícula:')+2, y, {maxWidth: sC2-sC3-doc.getTextWidth('Matrícula:')-4});
+  doc.setFont('helvetica','bold'); doc.setTextColor(...sLblColor); doc.text('Valor/km:',sC2,y);
+  doc.setFont('helvetica','normal'); doc.setTextColor(0);
+  doc.text(vkm.toFixed(2)+' €', sC2+doc.getTextWidth('Valor/km:')+2, y, {maxWidth: PW-MR-sC2-doc.getTextWidth('Valor/km:')-2});
   doc.setTextColor(0);
-  y += rowH2 + 3;
+  y+=sRowH+3;
 
   const cols=[
     {label:'Mês',    x:ML,    w:50, align:'left'},
